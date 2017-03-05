@@ -1,3 +1,5 @@
+import Control.Monad
+
 import Expr
 import Parser
 
@@ -19,8 +21,6 @@ runProgram :: String -> Result
 runProgram = eval . parseExpr
 
 main :: IO()
-main = do
-  putStrLn $ showResult $ runProgram "2 + 2"
-  putStrLn $ showResult $ runProgram "2 - 2"
-  putStrLn $ showResult $ runProgram "2 * 3"
-  putStrLn $ showResult $ runProgram "12 / 2"
+main = forever $ do
+  putStr "> "
+  getLine >>= putStrLn . showResult . runProgram
