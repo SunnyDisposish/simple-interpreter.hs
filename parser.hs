@@ -11,6 +11,8 @@ import Expr
 data Op
   = Plus 
   | Minus
+  | Times
+  | DividedBy
 
 parseExpr :: String -> Expr
 parseExpr expr = case (parse parser "" expr) of
@@ -27,15 +29,24 @@ parser = do
   return $ case op' of
     Plus -> Add e0 e1
     Minus -> Sub e0 e1
+    Times -> Mul e0 e1
+    DividedBy -> Div e0 e1
 
 num :: Parser Int
 num = return . read =<< many1 digit
 
 op :: Parser Op
-op = plus <|> minus
+op = plus <|> minus <|> times <|> dividedBy
 
 plus :: Parser Op
 plus = char '+' >> return Plus
 
 minus :: Parser Op
 minus = char '-' >> return Minus
+
+times :: Parser Op
+times = char '*' >> return Times
+
+dividedBy :: Parser Op
+dividedBy = char '/' >> return DividedBy
+
