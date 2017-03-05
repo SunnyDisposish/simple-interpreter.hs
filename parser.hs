@@ -29,7 +29,7 @@ parser = do
     Minus -> Sub e0 e1
 
 num :: Parser Int
-num = many1 digit >>= return . read
+num = return . read =<< many1 digit
 
 op :: Parser Op
 op = plus <|> minus
