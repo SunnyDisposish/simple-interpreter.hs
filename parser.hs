@@ -29,20 +29,13 @@ parser = do
     Minus -> Sub e0 e1
 
 num :: Parser Int
-num = do
-  n <- many1 digit
-  return (read n)
+num = many1 digit >>= return . read
 
 op :: Parser Op
-op = do
-  plus <|> minus
+op = plus <|> minus
 
 plus :: Parser Op
-plus = do
-  void $ char '+'
-  return Plus
+plus = char '+' >> return Plus
 
 minus :: Parser Op
-minus = do
-  void $ char '-'
-  return Minus
+minus = char '-' >> return Minus
