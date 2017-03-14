@@ -3,7 +3,9 @@ module Expr (
 ) where
 
 data Expr
-  = Add Int Int
-  | Sub Int Int
-  | Mul Int Int
-  | Div Int Int
+  = Add Expr Expr
+  | Sub Expr Expr
+  | Mul Expr Expr
+  | Div Expr Expr
+  | Lit Int
+  deriving Show

@@ -8,45 +8,51 @@ import Text.Parsec.String (Parser)
 
 import Expr
 
-data Op
-  = Plus 
-  | Minus
-  | Times
-  | DividedBy
+type Op = Expr -> Expr -> Expr
 
 parseExpr :: String -> Expr
 parseExpr expr = case (parse parser "" expr) of
   Right e -> e
-  _ -> error "invalid expression"
+  Left err -> error $ show err
 
 parser :: Parser Expr
-parser = do
-  e0 <- num
-  spaces
-  op' <- op
-  spaces
-  e1 <- num
-  return $ case op' of
-    Plus -> Add e0 e1
-    Minus -> Sub e0 e1
-    Times -> Mul e0 e1
-    DividedBy -> Div e0 e1
+parser = expr
+
+expr :: Parser Expr
+expr = term `chainl1` addop
+
+term :: Parser Expr
+term = factor `chainl1` mulop
+
+factor :: Parser Expr
+factor = whitespace (parens expr <|> literal)
+
+parens :: Parser a -> Parser a
+parens = between (char '(') (char ')')
+
+whitespace :: Parser a -> Parser a
+whitespace = between spaces spaces
+
+literal :: Parser Expr
+literal = return . Lit =<< num
 
 num :: Parser Int
 num = return . read =<< many1 digit
 
-op :: Parser Op
-op = plus <|> minus <|> times <|> dividedBy
+addop :: Parser Op
+addop = plus <|> minus
+
+mulop :: Parser Op
+mulop = times <|> dividedBy
 
 plus :: Parser Op
-plus = char '+' >> return Plus
+plus = char '+' >> return Add
 
 minus :: Parser Op
-minus = char '-' >> return Minus
+minus = char '-' >> return Sub
 
 times :: Parser Op
-times = char '*' >> return Times
+times = char '*' >> return Mul
 
 dividedBy :: Parser Op
-dividedBy = char '/' >> return DividedBy
-
+dividedBy = char '/' >> return Div
