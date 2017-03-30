@@ -16,7 +16,24 @@ parseExpr expr = case (parse parser "" expr) of
   Left err -> error $ show err
 
 parser :: Parser Expr
-parser = expr
+parser = lambda <|> try app <|> expr
+
+lambda :: Parser Expr
+lambda = do
+  char '\\'
+  Var v <- var
+  char '.'
+  body <- parser
+  return $ Lam v body
+
+app :: Parser Expr
+app = do
+  lam <- parens parser
+  arg <- parser
+  return $ App lam arg
+
+var :: Parser Expr
+var = return . Var =<< many1 letter
 
 expr :: Parser Expr
 expr = term `chainl1` addop
@@ -25,7 +42,7 @@ term :: Parser Expr
 term = factor `chainl1` mulop
 
 factor :: Parser Expr
-factor = whitespace (parens expr <|> literal)
+factor = whitespace (parens parser <|> literal <|> var)
 
 parens :: Parser a -> Parser a
 parens = between (char '(') (char ')')
@@ -46,13 +63,13 @@ mulop :: Parser Op
 mulop = times <|> dividedBy
 
 plus :: Parser Op
-plus = char '+' >> return Add
+plus = char '+' >> return (Bin Add)
 
 minus :: Parser Op
-minus = char '-' >> return Sub
+minus = char '-' >> return (Bin Sub)
 
 times :: Parser Op
-times = char '*' >> return Mul
+times = char '*' >> return (Bin Mul)
 
 dividedBy :: Parser Op
-dividedBy = char '/' >> return Div
+dividedBy = char '/' >> return (Bin Div)

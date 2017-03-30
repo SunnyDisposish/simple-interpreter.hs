@@ -1,11 +1,21 @@
-module Expr (
-  Expr(..)
+module Expr
+  ( Expr(..)
+  , Label
+  , Lit
+  , BinOp(..)
 ) where
 
+type Lit = Int
+
 data Expr
-  = Add Expr Expr
-  | Sub Expr Expr
-  | Mul Expr Expr
-  | Div Expr Expr
-  | Lit Int
+  = Lit Lit
+  | Bin BinOp Expr Expr
+  | Lam Label Expr
+  | App Expr Expr
+  | Var Label
   deriving Show
+
+data BinOp = Add | Sub | Mul | Div
+  deriving Show
+
+type Label = String
